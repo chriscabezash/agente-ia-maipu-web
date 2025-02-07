@@ -1,49 +1,32 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chatbot Maipú Simple</title>
-    <style>
-        body { font-family: sans-serif; }
-        #chat-window { border: 1px solid #ccc; height: 200px; overflow-y: auto; }
-    </style>
-</head>
-<body>
-    <h1>Chatbot Maipú Simple</h1>
-    <div id="chat-window"></div>
-    <input type="text" id="user-input" placeholder="Pregunta aquí">
-    <button id="ask-button">Enviar</button>
+<script>
+    const apiKey = 'AIzaSyCAMQcewV_tPJ4B7sJcLtrIhiF6Wfk5psE'; // **¡PELIGRO! NO INSERTAR CLAVE API EN CLIENTE REAL**
+    const chatWindow = document.getElementById('chat-window');
+    const userInput = document.getElementById('user-input');
+    const askButton = document.getElementById('ask-button');
 
-    <script>
-        const apiKey = 'AIzaSyCAMQcewV_tPJ4B7sJcLtrIhiF6Wfk5psE'; // **¡PELIGRO! NO INSERTAR CLAVE API EN CLIENTE REAL**
-        const chatWindow = document.getElementById('chat-window');
-        const userInput = document.getElementById('user-input');
-        const askButton = document.getElementById('ask-button');
-
-        askButton.addEventListener('click', () => {
-            const question = userInput.value.trim();
-            if (question) {
-                fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=' + apiKey, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({prompt: {text: question}})
+    askButton.addEventListener('click', () => {
+        const question = userInput.value.trim();
+        if (question) {
+            fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=' + apiKey, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ // **🔑 Estructura JSON corregida 🔑**
+                    contents: [{ parts: [{ text: question }] }]
                 })
-                .then(response => response.json())
-                .then(data => {
-                    let answer = "Error en la respuesta.";
-                    if (data.candidates && data.candidates[0].content.parts && data.candidates[0].content.parts[0].text) {
-                        answer = data.candidates[0].content.parts[0].text;
-                    }
-                    chatWindow.innerHTML += `<p>Usuario: ${question}</p><p>IA: ${answer}</p>`;
-                    userInput.value = '';
-                })
-                .catch(error => {
-                    console.error("Error API:", error);
-                    chatWindow.innerHTML += `<p>Error al obtener respuesta.</p>`;
-                });
-            }
-        });
-    </script>
-</body>
-</html>
+            })
+            .then(response => response.json())
+            .then(data => {
+                let answer = "Error en la respuesta.";
+                if (data.candidates && data.candidates[0].content.parts && data.candidates[0].content.parts[0].text) {
+                    answer = data.candidates[0].content.parts[0].text;
+                }
+                chatWindow.innerHTML += `<p>Usuario: ${question}</p><p>IA: ${answer}</p>`;
+                userInput.value = '';
+            })
+            .catch(error => {
+                console.error("Error API:", error);
+                chatWindow.innerHTML += `<p>Error al obtener respuesta.</p>`;
+            });
+        }
+    });
+</script>

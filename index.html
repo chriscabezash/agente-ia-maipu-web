@@ -1,79 +1,171 @@
-<script>
-    const apiKey = 'AIzaSyCAMQcewV_tPJ4B7sJcLtrIhiF6Wfk5psE'; // **¡PELIGRO! NO INSERTAR CLAVES API DIRECTAMENTE EN EL CLIENTE EN PRODUCCIÓN**
-    const chatWindow = document.getElementById('chat-window');
-    const userInput = document.getElementById('user-input');
-    const askButton = document.getElementById('ask-button');
-
-    askButton.addEventListener('click', () => {
-        const userQuestion = userInput.value;
-        if (userQuestion.trim() !== '') {
-            addUserMessage(userQuestion);
-            getAIResponse(userQuestion);
-            userInput.value = '';
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agente IA Maipú</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
         }
-    });
 
-    userInput.addEventListener('keypress', (event) => {
-        if (event.key === 'Enter') {
-            askButton.click();
-            event.preventDefault();
+        .container {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            width: 80%;
+            max-width: 600px;
+            text-align: center;
         }
-    });
 
-    function addUserMessage(message) {
-        const messageDiv = document.createElement('div');
-        messageDiv.classList.add('user-message');
-        messageDiv.textContent = message;
-        chatWindow.appendChild(messageDiv);
-        chatWindow.scrollTop = chatWindow.scrollHeight;
-    }
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
 
-    function addAIMessage(message) {
-        const messageDiv = document.createElement('div');
-        messageDiv.classList.add('ai-message');
-        messageDiv.textContent = message;
-        chatWindow.appendChild(messageDiv);
-        chatWindow.scrollTop = chatWindow.scrollHeight;
-    }
+        #chat-window {
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 20px;
+            height: 300px;
+            overflow-y: auto;
+            text-align: left;
+            background-color: #f9f9f9;
+        }
 
-    async function getAIResponse(question) {
-        try {
-            console.log("Enviando pregunta a la API de Gemini:", question); // Mensaje de log al enviar la pregunta
+        #user-input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-sizing: border-box;
+        }
 
-            // **🔑  Endpoint cambiado a gemini-1.5-flash  🔑**
-            const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=' + apiKey, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    prompt: {
-                        text: question
-                    }
-                })
-            });
+        #ask-button {
+            background-color: #3498db;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
 
-            console.log("Respuesta de la API:", response); // Log de la respuesta completa
+        #ask-button:hover {
+            background-color: #2980b9;
+        }
 
-            if (!response.ok) {
-                const errorText = await response.text(); // Obtener el texto del error
-                console.error(`Error HTTP al llamar a la API de Gemini! status: ${response.status}, texto del error: ${errorText}`);
-                throw new Error(`Error HTTP! status: ${response.status}, texto del error: ${errorText}`); // Incluir texto del error en el mensaje
+        .user-message {
+            text-align: right;
+            margin-bottom: 10px;
+            color: #27ae60;
+        }
+
+        .ai-message {
+            text-align: left;
+            margin-bottom: 10px;
+            color: #3498db;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Agente IA Maipú</h1>
+        <div id="chat-window">
+            <div class="ai-message">Bienvenido! ¿En qué puedo ayudarte hoy sobre Maipú?</div>
+        </div>
+        <input type="text" id="user-input" placeholder="Escribe tu pregunta aquí">
+        <button id="ask-button">Preguntar</button>
+    </div>
+
+    <script>
+        const apiKey = 'AIzaSyCAMQcewV_tPJ4B7sJcLtrIhiF6Wfk5psE'; // **¡PELIGRO! NO INSERTAR CLAVES API DIRECTAMENTE EN EL CLIENTE EN PRODUCCIÓN**
+        const chatWindow = document.getElementById('chat-window');
+        const userInput = document.getElementById('user-input');
+        const askButton = document.getElementById('ask-button');
+
+        askButton.addEventListener('click', () => {
+            const userQuestion = userInput.value;
+            if (userQuestion.trim() !== '') {
+                addUserMessage(userQuestion);
+                getAIResponse(userQuestion);
+                userInput.value = '';
             }
+        });
 
-            const data = await response.json();
-            console.log("Datos JSON recibidos de la API:", data); // Log de los datos JSON
-
-            let aiAnswer = "Error al obtener respuesta del modelo.";
-            if (data.candidates && data.candidates[0].content.parts && data.candidates[0].content.parts[0].text) {
-                aiAnswer = data.candidates[0].content.parts[0].text;
+        userInput.addEventListener('keypress', (event) => {
+            if (event.key === 'Enter') {
+                askButton.click();
+                event.preventDefault();
             }
+        });
 
-            addAIMessage(aiAnswer);
-
-        } catch (error) {
-            console.error("Error general al comunicarse con la API de Gemini:", error);
-            addAIMessage("No pude obtener una respuesta en este momento. Por favor, intenta de nuevo más tarde. (Error detallado en la consola)");
+        function addUserMessage(message) {
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('user-message');
+            messageDiv.textContent = message;
+            chatWindow.appendChild(messageDiv);
+            chatWindow.scrollTop = chatWindow.scrollHeight;
         }
-    }
-</script>
+
+        function addAIMessage(message) {
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('ai-message');
+            messageDiv.textContent = message;
+            chatWindow.appendChild(messageDiv);
+            chatWindow.scrollTop = chatWindow.scrollHeight;
+        }
+
+        async function getAIResponse(question) {
+            try {
+                console.log("Enviando pregunta a la API de Gemini:", question); // Mensaje de log al enviar la pregunta
+
+                // **🔑  Endpoint cambiado a gemini-1.5-flash  🔑**
+                const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=' + apiKey, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        prompt: {
+                            text: question
+                        }
+                    })
+                });
+
+                console.log("Respuesta de la API:", response); // Log de la respuesta completa
+
+                if (!response.ok) {
+                    const errorText = await response.text(); // Obtener el texto del error
+                    console.error(`Error HTTP al llamar a la API de Gemini! status: ${response.status}, texto del error: ${errorText}`);
+                    throw new Error(`Error HTTP! status: ${response.status}, texto del error: ${errorText}`); // Incluir texto del error en el mensaje
+                }
+
+                const data = await response.json();
+                console.log("Datos JSON recibidos de la API:", data); // Log de los datos JSON
+
+                let aiAnswer = "Error al obtener respuesta del modelo.";
+                if (data.candidates && data.candidates[0].content.parts && data.candidates[0].content.parts[0].text) {
+                    aiAnswer = data.candidates[0].content.parts[0].text;
+                }
+
+                addAIMessage(aiAnswer);
+
+            } catch (error) {
+                console.error("Error general al comunicarse con la API de Gemini:", error);
+                addAIMessage("No pude obtener una respuesta en este momento. Por favor, intenta de nuevo más tarde. (Error detallado en la consola)");
+            }
+        }
+    </script>
+</body>
+</html>
